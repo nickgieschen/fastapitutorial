@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
+    <title>Create Routes the Good Way</title>
+    <link type="text/css" rel="stylesheet" href="assets/css/github-markdown.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/pilcrow.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/hljs-github.min.css"/>
+  </head>
+  <body>
+    <article class="markdown-body"><h2 id="create-routes-the-good-way"><a class="header-link" href="#create-routes-the-good-way"></a>Create Routes the Good Way</h2>
+<p>Okay, now we&#39;re going to create our objects in a better way than in the section above. The code for this section is in a file called <code>main-3.py</code>. If you want to run it, use <code>pipenv run uvicorn main-3:app --reload</code>. </p>
+<ul class="list">
+<li>The first thing we have to do is delete (or comment out) the routes and functions we wrote in the last section, since we&#39;re going to doing them in a better way. So, remove <code>create-user</code> and <code>update-user</code>.</li>
+<li>Now we&#39;re going to create an update user route using the request body to send data to the server instead of a query string. FastAPI&#39;s docs on it are <a href="https://fastapi.tiangolo.com/tutorial/body/">here</a><ul class="list">
+<li>First we need to import <code>BaseModel</code> from Pydantic with <code>from pydantic import BaseModel</code>. Keep in mind, that since Pydantic is a FastAPI dependecy, when we pip installed FastAPI, Pydantic got installed as well. So, we don&#39;t need to pip install it.</li>
+<li>Now we&#39;re going to create a class which will represent the data coming in the body of the request. If you&#39;re following along in the FastAPI docs, note that this example will deviate a little from the FastAPI docs.<pre class="hljs"><code>  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserIn</span><span class="hljs-params">(BaseModel)</span>:</span>
+      name: str
+      age: str
+      sex: str</code></pre><ul class="list">
+<li>We have inherited from <code>BaseModel</code>. This is necessary for us to use it to represent a request body in FastApi.</li>
+</ul>
+</li>
+<li>And now we&#39;ll create a route to handle the update.<pre class="hljs"><code><span class="hljs-meta">  @app.post("/users/")</span>
+  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">create_user</span><span class="hljs-params">(userIn: UserIn)</span>:</span>
+      user = User(userIn.name, userIn.sex, userIn.age)
+      fakeDb[len(fakeDb)] = user
+      <span class="hljs-keyword">return</span> user</code></pre>  (I&#39;ll explain what&#39;s going on in this function in a second. First we&#39;re going to hit it with Postman.)</li>
+<li>Now we have to hit this route with Postman. To do that, we need to set up our call with a request body.<ul class="list">
+<li>First, obviously, select the method as POST (remember it&#39;s in the dropdown to the left of the input where you enter the URL) and the URL <code>127.0.0.1:8000/users/</code>. </li>
+<li>Now we have to fill in the response body, so in Postman, below the URL input, in a tab which says &quot;Body&quot;. Click on it and in the text field which appears write:<pre class="hljs"><code>  {
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Pete"</span>,
+      <span class="hljs-attr">"sex"</span>: <span class="hljs-string">"M"</span>,
+      <span class="hljs-attr">"age"</span>: <span class="hljs-number">14</span>
+  }</code></pre>This is the data we are sending to the server.</li>
+<li>Finally, we have to tell the server that our request body is json. That is, there are many formats we could have sent the request body in (XML, key/value, etc) and so we need to tell the server that we&#39;re sending JSON so the server knows how to parse what we&#39;re sending. Thus, under the Body tab, there is a radio button &quot;raw&quot;. Click it and then select &quot;JSON (application/json)&quot; from the dropdown where it has probably defaulted to &quot;Text&quot;. By doint this, we have told Postman to send a header called &quot;content-type&quot; along with our request with the value &quot;application/json&quot;, which the server will read to determine that our body has been formatted as JSON.</li>
+<li>Your Postman screen should look something like this:
+<img src="../images/postman-1.png" alt="postman example"></li>
+<li>Now that we&#39;ve set Postman up, we can hit our route. The result we see in Postman should be the new user we&#39;ve created:<pre class="hljs"><code>  {
+      <span class="hljs-attr">"username"</span>: <span class="hljs-string">"Pete"</span>,
+      <span class="hljs-attr">"gender"</span>: <span class="hljs-string">"M"</span>,
+      <span class="hljs-attr">"age"</span>: <span class="hljs-number">14</span>
+  }</code></pre></li>
+</ul>
+</li>
+<li>Let&#39;s go back to the route we wrote again and look at what&#39;s going on.<pre class="hljs"><code><span class="hljs-meta">  @app.post("/users/")</span>
+  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">create_user</span><span class="hljs-params">(userIn: UserIn)</span>:</span>
+      user = User(userIn.name, userIn.sex, userIn.age)
+      fakeDb[len(fakeDb)] = user
+      <span class="hljs-keyword">return</span> user</code></pre><ul class="list">
+<li>The first argument is of type UserIn. By doing this, we have told FastAPI to configure a route which will accept a request body in JSON of the form of the <code>UserIn</code> class. Namely, it should have <code>name</code>, <code>sex</code>, and <code>age</code> fields. And so this is what we sent in the request body. </li>
+<li>Just like we did with the query string data in the previous section, we&#39;re creating a new User object, but this time with the data from the request body.</li>
+<li>Finally, we are adding the user to our fake database (a little more succcintly this time)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+    </article>
+  </body>
+</html>

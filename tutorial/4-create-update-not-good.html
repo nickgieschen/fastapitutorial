@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
+    <title>Create and Update Routes the not so Good Way</title>
+    <link type="text/css" rel="stylesheet" href="assets/css/github-markdown.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/pilcrow.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/hljs-github.min.css"/>
+  </head>
+  <body>
+    <article class="markdown-body"><h2 id="create-and-update-routes-the-not-so-good-way"><a class="header-link" href="#create-and-update-routes-the-not-so-good-way"></a>Create and Update Routes the not so Good Way</h2>
+<p>Now we&#39;re going to create some routes to create and update items in our database. The code for this section is in a file called <code>main-2.py</code>. If you want to run it, use <code>pipenv run uvicorn main-2:app --reload</code>. This section is going to be a bit of a contrived example and does not represent best practices. However, it&#39;s useful for two reasons: (1) We get to practice using query strings with routes and (2) it represents a good stepping stone to the next section where we incorporate Pydantic and models.</p>
+<ul class="list">
+<li><p>First we&#39;re going to change our database so it contains objects instead of strings.</p>
+<ul class="list">
+<li>First we have to create a <code>User</code> class. To good tutorial on basics of classes is <a href="https://www.w3schools.com/python/python_classes.asp">here</a><pre class="hljs"><code>  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span>:</span>
+      <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, username, gender, age)</span>:</span>
+          self.username = username
+          self.gender = gender
+          self.age = age</code></pre></li>
+<li><p>Next we declare our database as a dictionary and then create users and add them to the dictionary</p>
+<pre class="hljs"><code>  fakeDb = {}
+
+  fakeDb[<span class="hljs-number">0</span>] = User(<span class="hljs-string">"Joe"</span>, <span class="hljs-string">"M"</span>, <span class="hljs-number">78</span>)
+  fakeDb[<span class="hljs-number">1</span>] = User(<span class="hljs-string">"Kamala"</span>, <span class="hljs-string">"F"</span>, <span class="hljs-number">55</span>)
+  fakeDb[<span class="hljs-number">2</span>] = User(<span class="hljs-string">"Bernard"</span>, <span class="hljs-string">"M"</span>, <span class="hljs-number">76</span>)</code></pre></li>
+<li>If we hit <code>/users</code> now with a GET request with Postman (the route which responds with our database) we can see all of the users we&#39;ve created. </li>
+</ul>
+</li>
+<li>Now we&#39;re going to create a route to create a user. For this example, we&#39;re going to use <a href="https://fastapi.tiangolo.com/tutorial/query-params/">query params</a> to pass data to the server. Typically we&#39;d use <a href="https://fastapi.tiangolo.com/tutorial/body/">request body params</a>, but that&#39;s a bit more complicated and we&#39;ll tackle that in the next section. <ul class="list">
+<li>We are going to create a route which will accept a URL which looks like <code>127.0.0.1:8000/create-user?username=Elizabeth&amp;gender=F&amp;age=77</code>. In this URL, the key/value pairs after the <code>?</code> are called query string parameters and are one way we can pass data from the client to the server. In other words, in our server side code we can read those key/value pairs and do something with them.</li>
+<li>Our route to handle a URL like this will look like this:<pre class="hljs"><code><span class="hljs-meta">  @app.get("/create-user/")</span>
+  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">create_user_query_string</span><span class="hljs-params">(username: str, gender: str, age: int)</span>:</span>
+      user = User(username, gender, age)
+      nextId = len(fakeDb)
+      fakeDb[nextId] = user</code></pre>  Observe a few things from the code above:<ul class="list">
+<li>As per the FastAPI docs, the parameteres in the query string map to the arguments of the function.</li>
+<li>We use the query string parameters to create a <code>User</code> object</li>
+<li>We use the <code>len</code> function to get the length of the <code>fakeDb</code> dictionary, which we will use as our key for this user.</li>
+</ul>
+</li>
+<li>Now we&#39;re going to hit this route in Postman with <code>127.0.0.1:8000/create-user?username=Elizabeth&amp;gender=F&amp;age=77</code> and then verify it worked by inspecting our database with <code>127.0.0.1:8000/users</code></li>
+</ul>
+</li>
+<li>Next, we&#39;re going to create a route to update an existing item in our database. <ul class="list">
+<li>Again we&#39;re going to use a query string to do this, though we&#39;ll refactor to a better way in the next section. For now, the query string we&#39;ll use is <code>127.0.0.1:8000/update-user?id=1&amp;prop=gender&amp;value=M</code>. This URL tells the server via the query string that we want to updage the user with the <code>id</code> of 1 and our update will update the property <code>age</code> with the value 55.</li>
+<li>Now we define a route to handle such a URL<pre class="hljs"><code><span class="hljs-meta">  @app.get("/update-user")</span>
+  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update_user_query_string</span><span class="hljs-params">(id: int, prop: str, value: str)</span>:</span>
+      user = fakeDb[id]
+      setattr(user, prop, value)</code></pre>  Observe the following about the above function:<ul class="list">
+<li>We are retrieving the user from the dictonary by using the value in the <code>id</code> param</li>
+<li>We are using python&#39;s <a href="https://www.w3schools.com/python/ref_func_setattr.asp">setattr</a> built-in function to set the attribute passed in the query string to the value passed in the query string.</li>
+</ul>
+</li>
+<li>Now we&#39;re going to hit this route in Postman with <code>127.0.0.1:8000/update-user?id=1&amp;prop=gender&amp;value=M</code> and then verify it worked by inspecting our database with <code>127.0.0.1:8000/items</code>. Now Kamala&#39;s gender should be M.</li>
+<li>Next, we have to fix a subtle bug we&#39;ve introduced. <ul class="list">
+<li>To see the bug, we&#39;re first going to view non-buggy data. To do so, retrieve one of the users with <code>127.0.0.1/users/1</code>. The result should look something like this:<pre class="hljs"><code>  {
+      <span class="hljs-string">"username"</span>: <span class="hljs-string">"Kamala"</span>,
+      <span class="hljs-string">"gender"</span>: <span class="hljs-string">"M"</span>,
+      <span class="hljs-string">"age"</span>: <span class="hljs-number">55</span>
+  }</code></pre></li>
+<li>Now lets update that user&#39;s age with <code>127.0.0.1:8000/update-user?id=1&amp;prop=age&amp;value=45</code> and retrieve the user again. Now they&#39;ll look like:<pre class="hljs"><code>  {
+      <span class="hljs-string">"username"</span>: <span class="hljs-string">"Kamala"</span>,
+      <span class="hljs-string">"gender"</span>: <span class="hljs-string">"F"</span>,
+      <span class="hljs-string">"age"</span>: <span class="hljs-string">"45"</span>
+  }</code></pre>  See the bug? Before setting the age, the age was represented correctly as an integer. Now, however, age is represented as a string. This is because in our <code>update_user_query_string</code> method we declared <code>value</code> as a <code>str</code>. So, give some thought as to how you&#39;d fix this. <a href="https://www.w3schools.com/python/python_casting.asp">Docs on casting</a> and <a href="https://www.w3schools.com/python/python_conditions.asp">docs on if statements</a> might help.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+    </article>
+  </body>
+</html>

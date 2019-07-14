@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
+    <title>Read and Delete Routes</title>
+    <link type="text/css" rel="stylesheet" href="assets/css/github-markdown.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/pilcrow.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/hljs-github.min.css"/>
+  </head>
+  <body>
+    <article class="markdown-body"><h2 id="read-and-delete-routes"><a class="header-link" href="#read-and-delete-routes"></a>Read and Delete Routes</h2>
+<p>For this we&#39;re going to create a fake database and create some read and delete routes to manipulate the data in the fake database. The code for this section is in a file called <code>main-1.py</code>. If you want to run it, use <code>pipenv run uvicorn main-1:app --reload</code>. </p>
+<ul class="list">
+<li>We start by creating a fake database, which will just be a dictionary:<pre class="hljs"><code>  fakeDb = {
+      <span class="hljs-number">0</span>: <span class="hljs-string">"Bernard"</span>,
+      <span class="hljs-number">1</span>: <span class="hljs-string">"Jospeh"</span>,
+      <span class="hljs-number">2</span>: <span class="hljs-string">"Kamala"</span>
+  }</code></pre></li>
+<li>Now we&#39;re going to create a route which will return the entire database. This way we can check it after each CRUD operation to make sure we&#39;ve manipulated it in the way we intended:<pre class="hljs"><code><span class="hljs-meta">  @app.get("/users")</span>
+  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_users</span><span class="hljs-params">()</span>:</span>
+      <span class="hljs-keyword">return</span> fakeDb</code></pre></li>
+<li>Now we hit this with postman by going to <code>127.0.0.1/users</code> and we should get our fakeDb in the response.</li>
+<li>Now lets create a &quot;read&quot; route. <pre class="hljs"><code><span class="hljs-meta">  @app.get("/users/{id}")</span>
+  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_user</span><span class="hljs-params">(id: int)</span>:</span>
+      <span class="hljs-string">"Gets a user by id"</span>
+      item = fakeDb[id] 
+      <span class="hljs-keyword">return</span> item</code></pre>  Observe a few things in the code above:<ul class="list">
+<li>The path parameter defined in the route gets passed to the function.</li>
+<li>The first line in a python function, if it&#39;s a string, will be used as documentation for the function.</li>
+<li>We retrieve an item from a python <a href="https://www.w3schools.com/python/python_dictionaries.asp">dictionary</a> with <code>dict[key]</code> syntax.</li>
+<li>Check the <a href="https://fastapi.tiangolo.com/tutorial/path-params/">docs</a> for more info on path parameters.</li>
+</ul>
+</li>
+<li>Now we hit this with postman by going to <code>127.0.0.1/users/1</code> and we should get &quot;Joseph&quot; as the response.</li>
+<li>Now lets create a &quot;delete&quot; route:<pre class="hljs"><code><span class="hljs-meta">  @app.delete("/users/{id}")</span>
+  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">delete_user</span><span class="hljs-params">(id: int)</span>:</span>
+      <span class="hljs-string">"Deletes a user by id"</span>
+      <span class="hljs-keyword">del</span> fakeDb[id]</code></pre><ul class="list">
+<li>We have defined the route as a &quot;delete&quot; route. That is, is order to hit that route our request has to specify that the HTTP method is &quot;DELETE&quot;. (We&#39;ll see how to do this in Postman in the next step.)</li>
+<li>We&#39;re using the <code>del</code> keyword to <a href="https://www.w3schools.com/python/python_dictionaries.asp">remove the item at the key specified</a>. As the docs show, we could also have written <code>fakeDb.pop(id)</code>.</li>
+</ul>
+</li>
+<li>Now we&#39;re going to hit this route with Postman. In order to do so, we have to specify the path as <code>127.0.0.1/users/1</code>. However, to the left of where we specify the path there is a dropdown which specifies the HTTP method. At the moment, it is probably populated with GET. Change it to DELETE and then click &quot;Send&quot;. The server will see that the HTTP method is DELETE and select our delete route to run. Since we&#39;re not returning anything from the delete route, we won&#39;t see anything in Postman which will indicate that the item got deleted. In order to check whether the item got deleted, we now hit the route which returns our entire fake database. We should see that item 1 is no longer in there.</li>
+</ul>
+    </article>
+  </body>
+</html>

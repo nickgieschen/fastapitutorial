@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
+    <title>Debugging</title>
+    <link type="text/css" rel="stylesheet" href="assets/css/github-markdown.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/pilcrow.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/hljs-github.min.css"/>
+  </head>
+  <body>
+    <article class="markdown-body"><h2 id="debugging"><a class="header-link" href="#debugging"></a>Debugging</h2>
+<p>We&#39;re going to take a quick tour to set up some advanced debugging tooling so we don&#39;t have to scatter <code>print</code> statements all over our code when we need to inspect it.</p>
+<ul class="list">
+<li>Follow the instructions on setting the app up for debugging <a href="https://fastapi.tiangolo.com/tutorial/debugging/">here</a>. A few observations:<ul class="list">
+<li>Make sure you put the following code at the <em>bottom</em> of your main file so that the <code>FastAPI</code> object (<code>app</code>) has completed it&#39;s initialization by the time it&#39;s passed to <code>uvicorn.run</code>.<pre class="hljs"><code><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">"__main__"</span>:
+uvicorn.run(app, host=<span class="hljs-string">"127.0.0.1"</span>, port=<span class="hljs-number">8000</span>)</code></pre></li>
+<li>You can set the IP in <code>uvicorn.run</code> to anything you&#39;d like. Since we&#39;ve been using <code>127.0.0.1</code> in this tutorial, I&#39;ve set it to that. </li>
+<li>If you get an error which states that &quot;address is already in use&quot;, it means that something else is trying to run on the IP you chose to run uvicorn on. It&#39;s probably another FastAPI instance you have running. Shut that instance down and then try again.</li>
+</ul>
+</li>
+<li>Now we&#39;re going to set up VSCode to run the app instead of starting it our terminal. The reason we want VSCode to start the app up is that then it can set up the debugger which allows us to use VSCode&#39;s advanced debugging tools. Below is a short video showing how to configure VSCode to start the debugger and, once your app is running, how to set breakpoints in order to inspect the code:
+<video controls width="100%">
+<source src="../images/debugging.mp4" type="video/mp4">
+</video> 
+</li>
+</ul>
+    </article>
+  </body>
+</html>
