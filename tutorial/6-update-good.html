@@ -10,52 +10,57 @@
   </head>
   <body>
     <article class="markdown-body"><h2 id="update-routes-the-good-way"><a class="header-link" href="#update-routes-the-good-way"></a>Update Routes the Good Way</h2>
-<p>Now, with code very similar to the last section, we&#39;re going to create a route to update our object. The code for this section is in a file called <code>main-4.py</code>. If you want to run it, use <code>pipenv run uvicorn main-4:app --reload</code>. This section will show you how to update an object in a basic way. In the FastAPI documentation they show <a href="https://fastapi.tiangolo.com/tutorial/body-updates/">similar, but slightly more succinct</a> ways to do the same thing. I&#39;m not using their method here, since I think it&#39;s clearer to show it this way and then add in the FastAPI magic one you understand what&#39;s going on in this code.</p>
-<ul class="list">
-<li>First we&#39;re going to create an <code>UpdateUserIn</code> model, similar to the <code>UserIn</code> model we created above:<pre class="hljs"><code>  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UpdateUserIn</span><span class="hljs-params">(BaseModel)</span>:</span>
-      username:str = <span class="hljs-keyword">None</span>
-      gender:str = <span class="hljs-keyword">None</span>
-      age:int = <span class="hljs-keyword">None</span></code></pre>  Note that this class is very similar to the UpdateUser class in the previous section. The difference here is that we&#39;ve given each property a default value of <code>None</code>. What this does is that it tells FastAPI that each of the properties with a default value is optional. The reason this is necessary is that, since we&#39;re updating a user, we may want to update only one property. In other words, the JSON we send in our request might look something like this if we just want to update the user&#39;s age:<pre class="hljs"><code>  {
-      <span class="hljs-attr">"age"</span>: <span class="hljs-number">22</span>
-  }</code></pre>  If we hadn&#39;t given the other two properties <code>username</code> and <code>gender</code> a default value, thereby making them optional, FastAPI would have thrown an error since they weren&#39;t included in the body of our request.</li>
-<li>We now create our route:<pre class="hljs"><code><span class="hljs-meta">  @app.patch("/users/{id}")</span>
-  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update_user</span><span class="hljs-params">(updateUserIn: UpdateUserIn, id: int)</span>:</span>
-      user = fakeDb[id]
-      updateUserInAsDict = updateUserIn.dict()
-      <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> updateUserInAsDict:
-          value = updateUserInAsDict[key]
-          <span class="hljs-keyword">if</span> value <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">None</span>:
-              setattr(user, key, value)
-      <span class="hljs-keyword">return</span> user</code></pre>  A couple things to observe:<ul class="list">
-<li>We&#39;re using <code>PATCH</code> as our HTTP method, since we&#39;re updating an existing user. </li>
-<li>We&#39;re using both <a href="https://fastapi.tiangolo.com/tutorial/path-params/">path parameters</a> and <a href="https://fastapi.tiangolo.com/tutorial/body/">request body</a> in our function signature.</li>
-<li>Let&#39;s parse out what&#39;s going on with:<pre class="hljs"><code>  updateUserInAsDict = updateUserIn.dict()
-  <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> updateUserAsDict:
-      value = updateUserAsDict[key]
-      <span class="hljs-keyword">if</span> value <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">None</span>:
-          setattr(user, key, value)</code></pre><ul class="list">
-<li>In short, we are looping over the key/value pairs in our request body. If the value is not <code>None</code> we set the attribute we sent in the request on the user object we retrieved from the fake database with the value we passed in the request. Now a little more explanation:<ul class="list">
-<li>We need to loop over the items we sent in the request body. For example, if we want to update both the age and gender, our request body would look like:<pre class="hljs"><code>{
-  <span class="hljs-attr">"age"</span>: <span class="hljs-number">33</span>,
-  <span class="hljs-attr">"gender"</span>: <span class="hljs-string">"F"</span>
-}</code></pre>So, we want to loop over this structure. In the first iteration of the loop, we&#39;ll set the age to 33 and in the second iteration of the loop we&#39;ll set gender to F. We can&#39;t loop through the properties of an object, but we can loop through a dictionary. So, we use the <code>dict()</code> method of <a href="https://github.com/samuelcolvin/pydantic/blob/master/pydantic/main.py">Pydantic&#39;s BaseModel</a> since that returns the properties and the values of an object as a dictionary. (Since <code>UpdateUserIn</code> inherits from <code>BaseModel</code>) this method can be called on <code>UpdateUserIn</code>. So, now <code>updateUserInAsDict</code> is a dictionary containing the key/value pairs of <code>UpdateUserIn</code>.</li>
-<li><code>for... in</code> on a dictioary loops over the keys of a dictioary.</li>
-<li>We extract the value at the key with <code>value = updateUserAsDict[key]</code>.</li>
-<li>Keep in mind, the dictionary at this point includes <em>all</em> of the properties of the UpdateUserIn model. So, the ones we <em>didn&#39;t</em> set in the JSON we passed in in the body of our request are still present, but they are set to none. In other words, if the JSON in our request was:<pre class="hljs"><code>{
-  <span class="hljs-attr">"age"</span>: <span class="hljs-number">33</span>,
-}</code></pre>The dictionary of updateUserAsDict will be:<pre class="hljs"><code>{
-  username = <span class="hljs-keyword">None</span>,
-  age = <span class="hljs-number">33</span>,
-  gender = <span class="hljs-keyword">None</span> 
-}</code></pre>So, in order to not set the values on our user object to <code>None</code>, we use an if clause to make sure they are not <code>None</code>.</li>
-<li>Once we make sure they are not <code>None</code>, we set the appropriate property on the user object to the appropriate value.</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+      <p>Now, with code very similar to the last section, we&#39;re going to create a route to update our object. The code for this section is in a file called <code>main-4.py</code>. If you want to run it, use <code>pipenv run uvicorn main-4:app --reload</code>. This section will show you how to update an object in a basic way. In the FastAPI documentation they show <a href="https://fastapi.tiangolo.com/tutorial/body-updates/">similar, but slightly more succinct</a> ways to do the same thing. I&#39;m not using their method here, since I think it&#39;s clearer to show it this way and then add in the FastAPI magic once you understand what&#39;s going on in this code.</p>
+
+      <ul class="list">
+        <li>First we&#39;re going to create an <code>UpdateUserIn</code> model, similar to the <code>UserIn</code> model we created above:<pre class="hljs"><code>  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UpdateUserIn</span><span class="hljs-params">(BaseModel)</span>:</span>
+              username:str = <span class="hljs-keyword">None</span>
+              gender:str = <span class="hljs-keyword">None</span>
+              age:int = <span class="hljs-keyword">None</span></code></pre>  Note that this class is very similar to the UpdateUser class in the previous section. The difference here is that we&#39;ve given each property a default value of <code>None</code>. What this does is that it tells FastAPI that each of the properties with a default value is optional. The reason this is necessary is that, since we&#39;re updating a user, we may want to update only one property. In other words, the JSON we send in our request might look something like this if we just want to update the user&#39;s age:<pre class="hljs"><code>  {
+              <span class="hljs-attr">"age"</span>: <span class="hljs-number">22</span>
+          }</code></pre>  If we hadn&#39;t given the other two properties <code>username</code> and <code>gender</code> a default value, thereby making them optional, FastAPI would have thrown an error since they weren&#39;t included in the body of our request.</li>
+
+        <li>We now create our route:<pre class="hljs"><code><span class="hljs-meta">  @app.patch("/users/{id}")</span>
+          <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update_user</span><span class="hljs-params">(update_user_in: UpdateUserIn, id: int)</span>:</span>
+              user = fakeDb[id]
+              update_user_in_as_dict = update_user_in.dict()
+              <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> update_user_in_as_dict:
+                  value = update_user_in_as_dict[key]
+                  <span class="hljs-keyword">if</span> value <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">None</span>:
+                      setattr(user, key, value)
+              <span class="hljs-keyword">return</span> user</code></pre>  A couple things to observe:<ul class="list">
+        <li>We&#39;re using <code>PATCH</code> as our HTTP method, since we&#39;re updating an existing user. </li>
+
+        <li>We&#39;re using both <a href="https://fastapi.tiangolo.com/tutorial/path-params/">path parameters</a> and <a href="https://fastapi.tiangolo.com/tutorial/body/">request body</a> in our function signature.</li>
+
+        <li>Let&#39;s parse out what&#39;s going on with:<pre class="hljs"><code>  update_user_in_as_dict = update_user_in.dict()
+          <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> update_user_in_as_dict:
+              value = update_user_in_as_dict[key]
+              <span class="hljs-keyword">if</span> value <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">None</span>:
+                  setattr(user, key, value)</code></pre><ul class="list">
+        <li>In short, we are looping over the key/value pairs in our request body. If the value is not <code>None</code> we set the attribute we sent in the request on the user object we retrieved from the fake database with the value we passed in the request. Now a little more explanation:<ul class="list">
+        <li>We need to loop over the items we sent in the request body. For example, if we want to update both the age and gender, our request body would look like:<pre class="hljs"><code>{
+          <span class="hljs-attr">"age"</span>: <span class="hljs-number">33</span>,
+          <span class="hljs-attr">"gender"</span>: <span class="hljs-string">"F"</span>
+        }</code></pre>So, we want to loop over this structure. In the first iteration of the loop, we&#39;ll set the age to 33 and in the second iteration of the loop we&#39;ll set gender to F. We can&#39;t loop through the properties of an object, but we can loop through a dictionary. So, we use the <code>dict()</code> method of <a href="https://github.com/samuelcolvin/pydantic/blob/master/pydantic/main.py">Pydantic&#39;s BaseModel</a> since that returns the properties and the values of an object as a dictionary. (Since <code>UpdateUserIn</code> inherits from <code>BaseModel</code>) this method can be called on <code>UpdateUserIn</code>. So, now <code>update_user_in_as_dict</code> is a dictionary containing the key/value pairs of <code>UpdateUserIn</code>.</li>
+        <li><code>for... in</code> on a dictioary loops over the keys of a dictioary.</li>
+        <li>We extract the value at the key with <code>value = update_user_in_as_dict[key]</code>.</li>
+        <li>Keep in mind, the dictionary at this point includes <em>all</em> of the properties of the UpdateUserIn model. So, the ones we <em>didn&#39;t</em> set in the JSON we passed in in the body of our request are still present, but they are set to none. In other words, if the JSON in our request was:<pre class="hljs"><code>{
+          <span class="hljs-attr">"age"</span>: <span class="hljs-number">33</span>,
+        }</code></pre>The dictionary of update_user_in_as_dict will be:<pre class="hljs"><code>{
+          username = <span class="hljs-keyword">None</span>,
+          age = <span class="hljs-number">33</span>,
+          gender = <span class="hljs-keyword">None</span> 
+        }</code></pre>So, in order to not set the values on our user object to <code>None</code>, we use an if clause to make sure they are not <code>None</code>.</li>
+        <li>Once we make sure they are not <code>None</code>, we set the appropriate property on the user object to the appropriate value.</li>
+        </ul>
+        </li>
+        </ul>
+        </li>
+        </ul>
+        </li>
+      </ul>
+
     </article>
   </body>
 </html>

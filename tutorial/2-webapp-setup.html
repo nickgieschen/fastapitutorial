@@ -10,25 +10,25 @@
   </head>
   <body>
     <article class="markdown-body"><h2 id="web-app-setup"><a class="header-link" href="#web-app-setup"></a>Web App Setup</h2>
-<h3 id="pipenv"><a class="header-link" href="#pipenv"></a>Pipenv</h3>
-<p>We&#39;re going to set the project up as a pipenv managed project</p>
-<ul class="list">
-<li><a href="https://github.com/pypa/pipenv">docs</a></li>
-<li>Initialize the project as a pipenv managed project with <code>pipenv --python 3.7</code> (You can initialize with any Python version you&#39;d like.) This will create a Pipfile, which is the file which contains your dependencies.</li>
-<li>Add a dependency. In this case, we&#39;re going to add FastAPI <code>pipenv install fastapi[all]</code>. In the <a href="https://fastapi.tiangolo.com/tutorial/intro/">FastAPI docs</a> they have <code>pip install fastapi[all]</code>. However, since we&#39;re using pipenv, we modify their installation instructions to use pipenv.</li>
-</ul>
-<h3 id="getting-the-server-up-and-running"><a class="header-link" href="#getting-the-server-up-and-running"></a>Getting the server up and running</h3>
-<p>We&#39;re going to create our first route, then get the server running, and hit the route with our browser and Postman.</p>
-<ul class="list">
-<li><a href="https://fastapi.tiangolo.com/tutorial/first-steps/">docs</a></li>
-<li>Create a <code>main.py</code> file and write the first route as specified in the docs</li>
-<li>Start the webserver<ul class="list">
-<li><code>pipenv run uvicorn main:app --reload</code>. Again, the docs say you start the webserver with <code>uvicorn main:app --reload</code>, however since we&#39;re using pipenv we need to tell pipenv to run this command, hence we prefix it with <code>pipenv run</code>. The reason behind this is that by installing FastAPI (which includes uvicorn) with pipenv, we installed it to the virtual/local environment, not gloabally. So, if we had run the command in the FastAPI docs, our shell could not have found uvicorn. By prefixing the command with <code>pipenv run</code> we&#39;re saying &quot;run this command from within the virtual environment&quot; and it will work since we installed uvicorn to the virtual environment.</li>
-<li>If you look on your command line, there were some logging statements when you started up the webserver. One of them tells you which IP the server was started on <code>INFO: Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)</code>. Navigate to that in your web browser and it will execute the route we wrote for <code>/</code>.</li>
-</ul>
-</li>
-<li>Hit the routes with Postman.<br>Eventually it&#39;s going to be easier to test our routes during development if we use Postman instead of our browser, so open up Postman and hit <code>/</code> with it.</li>
-</ul>
+      <h3 id="pipenv"><a class="header-link" href="#pipenv"></a>Pipenv</h3>
+      <p>We&#39;re going to set the project up as a pipenv managed project</p>
+      <ul class="list">
+      <li><a href="https://github.com/pypa/pipenv">pipenv docs</a></li>
+      <li>Initialize the project as a pipenv managed project with <code>pipenv --python 3.7</code> (You can initialize with any Python version you&#39;d like.) This will create a Pipfile, which is the file that contains your dependencies.</li>
+      <li>Add a dependency. In this case, we&#39;re going to add FastAPI <code>pipenv install fastapi[all]</code>. In the <a href="https://fastapi.tiangolo.com/tutorial/intro/">FastAPI docs</a> they use pip: <code>pip install fastapi[all]</code>. However, since we&#39;re using pipenv, we modify their installation instructions to use pipenv.</li>
+      </ul>
+      <h3 id="getting-the-server-up-and-running"><a class="header-link" href="#getting-the-server-up-and-running"></a>Getting the server up and running</h3>
+      <p>We&#39;re going to create our first route, then get the server running, and hit the route using our browser and Postman.</p>
+      <ul class="list">
+      <li><a href="https://fastapi.tiangolo.com/tutorial/first-steps/">FastAPI docs</a></li>
+      <li>Create a <code>main.py</code> file and write the first route as specified in the docs</li>
+      <li>Start the webserver<ul class="list">
+      <li><code>pipenv run uvicorn main:app --reload</code>. Again, the docs say you start the webserver with <code>uvicorn main:app --reload</code>, however since we&#39;re using pipenv we need to tell pipenv to run this command, hence we prefix it with <code>pipenv run</code>. The reason behind this is that by installing FastAPI (which includes uvicorn) with pipenv, we installed it to the virtual/local environment, not gloabally. So, if we had run the command in the FastAPI docs, our shell could not have found uvicorn. By prefixing the command with <code>pipenv run</code> we&#39;re saying &quot;run this command from within the virtual environment&quot; and it will work since we installed uvicorn to the virtual environment.</li>
+      <li>If you look on your command line, there were some logging statements when you started up the webserver. One of them tells you which IP the server was started on <code>INFO: Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)</code>. Navigate to that in your web browser and it will execute the route we wrote for <code>/</code>.</li>
+      </ul>
+      </li>
+      <li>Hit the routes with Postman.<br>Eventually it&#39;s going to be easier to test our routes during development if we use Postman instead of our browser, so open up Postman and hit <code>/</code> with it.</li>
+      </ul>
     </article>
   </body>
 </html>
