@@ -1,3 +1,15 @@
 {
-    "python.pythonPath": "/Users/nick/.local/share/virtualenvs/fast-api-eg-ko4WtNVP/bin/python"
+    "python.pythonPath": "/Users/nick/.local/share/virtualenvs/fast-api-eg-ko4WtNVP/bin/python",
+    "sqltools.connections": [
+        {
+            "askForPassword": true,
+            "connectionTimeout": 30,
+            "database": "fastapieg",
+            "dialect": "PostgreSQL",
+            "name": "fastapieg",
+            "port": 5432,
+            "server": "127.0.0.1",
+            "username": "nick"
+        }
+    ]
 }

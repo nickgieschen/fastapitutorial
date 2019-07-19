@@ -3,270 +3,20 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
-    <title>Syllabus</title>
+    <title>TODO</title>
     <link type="text/css" rel="stylesheet" href="assets/css/github-markdown.css">
     <link type="text/css" rel="stylesheet" href="assets/css/pilcrow.css">
     <link type="text/css" rel="stylesheet" href="assets/css/hljs-github.min.css"/>
   </head>
   <body>
-    <article class="markdown-body"><h1 id="syllabus"><a class="header-link" href="#syllabus"></a>Syllabus</h1>
-<h2 id="basic-python-for-this-tutorial"><a class="header-link" href="#basic-python-for-this-tutorial"></a>Basic Python for this tutorial</h2>
-<p>Documentation <a href="https://www.tutorialspoint.com/python/python_functions.htm">here</a>
-<br>Quick lookup reference <a href="https://www.w3schools.com/python/python_reference.asp">here</a></p>
-<ul class="list">
-<li><a href="https://www.w3schools.com/python/python_dictionaries.asp">dictionary</a></li>
-<li><a href="https://www.w3schools.com/python/python_tuples.asp">tuple</a></li>
-<li><a href="https://www.w3schools.com/python/python_classes.asp">classes/objects</a> </li>
-<li><a href="https://www.w3schools.com/python/python_inheritance.asp">class inheritance</a></li>
-</ul>
-<h2 id="basic-python-one-should-know-in-general"><a class="header-link" href="#basic-python-one-should-know-in-general"></a>Basic Python one should know in general</h2>
-<ul class="list">
-<li>list</li>
-<li>tuple</li>
-<li>if</li>
-<li>for</li>
-<li>ranges</li>
-<li>functions<ul class="list">
-<li>default args</li>
-<li>keyword args</li>
-</ul>
-</li>
-<li>classes/objects</li>
-</ul>
-<h2 id="a-little-more-advanced-python"><a class="header-link" href="#a-little-more-advanced-python"></a>A little more advanced Python</h2>
-<ul class="list">
-<li>functions<ul class="list">
-<li>variable lenth args</li>
-<li>lambda </li>
-</ul>
-</li>
-<li>modules</li>
-<li>exceptions</li>
-<li>classes/objects<ul class="list">
-<li>method overriding</li>
-<li>information hiding with _ and __</li>
-</ul>
-</li>
-</ul>
-<h2 id="web-app"><a class="header-link" href="#web-app"></a>Web App</h2>
-<h3 id="setup"><a class="header-link" href="#setup"></a>Setup</h3>
-<p>We&#39;re going to set the project up as a pipenv managed project</p>
-<ul class="list">
-<li><a href="https://github.com/pypa/pipenv">docs</a></li>
-<li>Initialize the project as a pipenv managed project with <code>pipenv --python 3.7</code> (You can initialize with any Python version you&#39;d like.) This will create a Pipfile, which is the file which contains your dependencies.</li>
-<li>Add a dependency. In this case, we&#39;re going to add FastAPI <code>pipenv install fastapi[all]</code>. In the <a href="https://fastapi.tiangolo.com/tutorial/intro/">FastAPI docs</a> they have <code>pip install fastapi[all]</code>. However, since we&#39;re using pipenv, we modify their installation instructions to use pipenv.</li>
-</ul>
-<h3 id="getting-the-server-up-and-running"><a class="header-link" href="#getting-the-server-up-and-running"></a>Getting the server up and running</h3>
-<p>We&#39;re going to create our first route, then get the server running, and hit the route with our browser and Postman.</p>
-<ul class="list">
-<li><a href="https://fastapi.tiangolo.com/tutorial/first-steps/">docs</a></li>
-<li>Create a <code>main.py</code> file and write the first route as specified in the docs</li>
-<li>Start the webserver<ul class="list">
-<li><code>pipenv run uvicorn main:app --reload</code>. Again, the docs say you start the webserver with <code>uvicorn main:app --reload</code>, however since we&#39;re using pipenv we need to tell pipenv to run this command, hence we prefix it with <code>pipenv run</code>. The reason behind this is that by installing FastAPI (which includes uvicorn) with pipenv, we installed it to the virtual/local environment, not gloabally. So, if we had run the command in the FastAPI docs, our shell could not have found uvicorn. By prefixing the command with <code>pipenv run</code> we&#39;re saying &quot;run this command from within the virtual environment&quot; and it will work since we installed uvicorn to the virtual environment.</li>
-<li>If you look on your command line, there were some logging statements when you started up the webserver. One of them tells you which IP the server was started on <code>INFO: Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)</code>. Navigate to that in your web browser and it will execute the route we wrote for <code>/</code>.</li>
-</ul>
-</li>
-<li>Hit the routes with Postman.<br>Eventually it&#39;s going to be easier to test our routes during development if we use Postman instead of our browser, so open up Postman and hit <code>/</code> with it.</li>
-</ul>
-<h3 id="basic-routing"><a class="header-link" href="#basic-routing"></a>Basic routing</h3>
-<p>For this we&#39;re going to create a fake database and create some read and delete routes to manipulate the data in the fake database. The code for this section is in a file called <code>main-1.py</code>. If you want to run it, use <code>pipenv run uvicorn main-1:app --reload</code>. </p>
-<ul class="list">
-<li>We start by creating a fake database, which will just be a dictionary:<pre class="hljs"><code>  fakeDb = {
-      <span class="hljs-number">0</span>: <span class="hljs-string">"Bernard"</span>,
-      <span class="hljs-number">1</span>: <span class="hljs-string">"Jospeh"</span>,
-      <span class="hljs-number">2</span>: <span class="hljs-string">"Kamala"</span>
-  }</code></pre></li>
-<li>Now we&#39;re going to create a route which will return the entire database. This way we can check it after each CRUD operation to make sure we&#39;ve manipulated it in the way we intended:<pre class="hljs"><code><span class="hljs-meta">  @app.get("/users")</span>
-  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_users</span><span class="hljs-params">()</span>:</span>
-      <span class="hljs-keyword">return</span> fakeDb</code></pre></li>
-<li>Now we hit this with postman by going to <code>127.0.0.1/users</code> and we should get our fakeDb in the response.</li>
-<li>Now lets create a &quot;read&quot; route. <pre class="hljs"><code><span class="hljs-meta">  @app.get("/users/{id}")</span>
-  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_user</span><span class="hljs-params">(id: int)</span>:</span>
-      <span class="hljs-string">"Gets a user by id"</span>
-      item = fakeDb[id] 
-      <span class="hljs-keyword">return</span> item</code></pre>  Observe a few things in the code above:<ul class="list">
-<li>The path parameter defined in the route gets passed to the function.</li>
-<li>The first line in a python function, if it&#39;s a string, will be used as documentation for the function.</li>
-<li>We retrieve an item from a python <a href="https://www.w3schools.com/python/python_dictionaries.asp">dictionary</a> with <code>dict[key]</code> syntax.</li>
-<li>Check the <a href="https://fastapi.tiangolo.com/tutorial/path-params/">docs</a> for more info on path parameters.</li>
-</ul>
-</li>
-<li>Now we hit this with postman by going to <code>127.0.0.1/users/1</code> and we should get &quot;Joseph&quot; as the response.</li>
-<li>Now lets create a &quot;delete&quot; route:<pre class="hljs"><code><span class="hljs-meta">  @app.delete("/users/{id}")</span>
-  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">delete_user</span><span class="hljs-params">(id: int)</span>:</span>
-      <span class="hljs-string">"Deletes a user by id"</span>
-      <span class="hljs-keyword">del</span> fakeDb[id]</code></pre><ul class="list">
-<li>We have defined the route as a &quot;delete&quot; route. That is, is order to hit that route our request has to specify that the HTTP method is &quot;DELETE&quot;. (We&#39;ll see how to do this in Postman in the next step.)</li>
-<li>We&#39;re using the <code>del</code> keyword to <a href="https://www.w3schools.com/python/python_dictionaries.asp">remove the item at the key specified</a>. As the docs show, we could also have written <code>fakeDb.pop(id)</code>.</li>
-</ul>
-</li>
-<li>Now we&#39;re going to hit this route with Postman. In order to do so, we have to specify the path as <code>127.0.0.1/users/1</code>. However, to the left of where we specify the path there is a dropdown which specifies the HTTP method. At the moment, it is probably populated with GET. Change it to DELETE and then click &quot;Send&quot;. The server will see that the HTTP method is DELETE and select our delete route to run. Since we&#39;re not returning anything from the delete route, we won&#39;t see anything in Postman which will indicate that the item got deleted. In order to check whether the item got deleted, we now hit the route which returns our entire fake database. We should see that item 1 is no longer in there.</li>
-</ul>
-<h3 id="create-and-update-routing-the-not-so-good-way"><a class="header-link" href="#create-and-update-routing-the-not-so-good-way"></a>Create and update routing the not so good way</h3>
-<p>Now we&#39;re going to create some routes to create and update items in our database. The code for this section is in a file called <code>main-2.py</code>. If you want to run it, use <code>pipenv run uvicorn main-2:app --reload</code>. This section is going to be a bit of a contrived example and does not represent best practices. However, it&#39;s useful for two reasons: (1) We get to practice using query strings with routes and (2) it represents a good stepping stone to the next section where we incorporate Pydantic and models.</p>
-<ul class="list">
-<li><p>First we&#39;re going to change our database so it contains objects instead of strings.</p>
-<ul class="list">
-<li>First we have to create a <code>User</code> class. To good tutorial on basics of classes is <a href="https://www.w3schools.com/python/python_classes.asp">here</a><pre class="hljs"><code>  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span>:</span>
-      <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, username, gender, age)</span>:</span>
-          self.username = username
-          self.gender = gender
-          self.age = age</code></pre></li>
-<li><p>Next we declare our database as a dictionary and then create users and add them to the dictionary</p>
-<pre class="hljs"><code>  fakeDb = {}
-
-  fakeDb[<span class="hljs-number">0</span>] = User(<span class="hljs-string">"Joe"</span>, <span class="hljs-string">"M"</span>, <span class="hljs-number">78</span>)
-  fakeDb[<span class="hljs-number">1</span>] = User(<span class="hljs-string">"Kamala"</span>, <span class="hljs-string">"F"</span>, <span class="hljs-number">55</span>)
-  fakeDb[<span class="hljs-number">2</span>] = User(<span class="hljs-string">"Bernard"</span>, <span class="hljs-string">"M"</span>, <span class="hljs-number">76</span>)</code></pre></li>
-<li>If we hit <code>/users</code> now with a GET request with Postman (the route which responds with our database) we can see all of the users we&#39;ve created. </li>
-</ul>
-</li>
-<li>Now we&#39;re going to create a route to create a user. For this example, we&#39;re going to use <a href="https://fastapi.tiangolo.com/tutorial/query-params/">query params</a> to pass data to the server. Typically we&#39;d use <a href="https://fastapi.tiangolo.com/tutorial/body/">request body params</a>, but that&#39;s a bit more complicated and we&#39;ll tackle that in the next section. <ul class="list">
-<li>We are going to create a route which will accept a URL which looks like <code>127.0.0.1:8000/create-user?username=Elizabeth&amp;gender=F&amp;age=77</code>. In this URL, the key/value pairs after the <code>?</code> are called query string parameters and are one way we can pass data from the client to the server. In other words, in our server side code we can read those key/value pairs and do something with them.</li>
-<li>Our route to handle a URL like this will look like this:<pre class="hljs"><code><span class="hljs-meta">  @app.get("/create-user/")</span>
-  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">create_user_query_string</span><span class="hljs-params">(username: str, gender: str, age: int)</span>:</span>
-      user = User(username, gender, age)
-      nextId = len(fakeDb)
-      fakeDb[nextId] = user</code></pre>  Observe a few things from the code above:<ul class="list">
-<li>As per the FastAPI docs, the parameteres in the query string map to the arguments of the function.</li>
-<li>We use the query string parameters to create a <code>User</code> object</li>
-<li>We use the <code>len</code> function to get the length of the <code>fakeDb</code> dictionary, which we will use as our key for this user.</li>
-</ul>
-</li>
-<li>Now we&#39;re going to hit this route in Postman with <code>127.0.0.1:8000/create-user?username=Elizabeth&amp;gender=F&amp;age=77</code> and then verify it worked by inspecting our database with <code>127.0.0.1:8000/users</code></li>
-</ul>
-</li>
-<li>Next, we&#39;re going to create a route to update an existing item in our database. <ul class="list">
-<li>Again we&#39;re going to use a query string to do this, though we&#39;ll refactor to a better way in the next section. For now, the query string we&#39;ll use is <code>127.0.0.1:8000/update-user?id=1&amp;prop=gender&amp;value=M</code>. This URL tells the server via the query string that we want to updage the user with the <code>id</code> of 1 and our update will update the property <code>age</code> with the value 55.</li>
-<li>Now we define a route to handle such a URL<pre class="hljs"><code><span class="hljs-meta">  @app.get("/update-user")</span>
-  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update_user_query_string</span><span class="hljs-params">(id: int, prop: str, value: str)</span>:</span>
-      user = fakeDb[id]
-      setattr(user, prop, value)</code></pre>  Observe the following about the above function:<ul class="list">
-<li>We are retrieving the user from the dictonary by using the value in the <code>id</code> param</li>
-<li>We are using python&#39;s <a href="https://www.w3schools.com/python/ref_func_setattr.asp">setattr</a> built-in function to set the attribute passed in the query string to the value passed in the query string.</li>
-</ul>
-</li>
-<li>Now we&#39;re going to hit this route in Postman with <code>127.0.0.1:8000/update-user?id=1&amp;prop=gender&amp;value=M</code> and then verify it worked by inspecting our database with <code>127.0.0.1:8000/items</code>. Now Kamala&#39;s gender should be M.</li>
-<li>Next, we have to fix a subtle bug we&#39;ve introduced. <ul class="list">
-<li>To see the bug, we&#39;re first going to view non-buggy data. To do so, retrieve one of the users with <code>127.0.0.1/users/1</code>. The result should look something like this:<pre class="hljs"><code>  {
-      <span class="hljs-string">"username"</span>: <span class="hljs-string">"Kamala"</span>,
-      <span class="hljs-string">"gender"</span>: <span class="hljs-string">"M"</span>,
-      <span class="hljs-string">"age"</span>: <span class="hljs-number">55</span>
-  }</code></pre></li>
-<li>Now lets update that user&#39;s age with <code>127.0.0.1:8000/update-user?id=1&amp;prop=age&amp;value=45</code> and retrieve the user again. Now they&#39;ll look like:<pre class="hljs"><code>  {
-      <span class="hljs-string">"username"</span>: <span class="hljs-string">"Kamala"</span>,
-      <span class="hljs-string">"gender"</span>: <span class="hljs-string">"F"</span>,
-      <span class="hljs-string">"age"</span>: <span class="hljs-string">"45"</span>
-  }</code></pre>  See the bug? Before setting the age, the age was represented correctly as an integer. Now, however, age is represented as a string. This is because in our <code>update_user_query_string</code> method we declared <code>value</code> as a <code>str</code>. So, give some thought as to how you&#39;d fix this. <a href="https://www.w3schools.com/python/python_casting.asp">Docs on casting</a> and <a href="https://www.w3schools.com/python/python_conditions.asp">docs on if statements</a> might help.</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="create-a-create-route-the-good-way"><a class="header-link" href="#create-a-create-route-the-good-way"></a>Create a create route the good way</h3>
-<p>Okay, now we&#39;re going to create our objects in a better way than in the section above. The code for this section is in a file called <code>main-3.py</code>. If you want to run it, use <code>pipenv run uvicorn main-3:app --reload</code>. </p>
-<ul class="list">
-<li>The first thing we have to do is delete (or comment out) the routes and functions we wrote in the last section, since we&#39;re going to doing them in a better way. So, remove <code>create-user</code> and <code>update-user</code>.</li>
-<li>Now we&#39;re going to create an update user route using the request body to send data to the server instead of a query string. FastAPI&#39;s docs on it are <a href="https://fastapi.tiangolo.com/tutorial/body/">here</a><ul class="list">
-<li>First we need to import <code>BaseModel</code> from Pydantic with <code>from pydantic import BaseModel</code>. Keep in mind, that since Pydantic is a FastAPI dependecy, when we pip installed FastAPI, Pydantic got installed as well. So, we don&#39;t need to pip install it.</li>
-<li>Now we&#39;re going to create a class which will represent the data coming in the body of the request. If you&#39;re following along in the FastAPI docs, note that this example will deviate a little from the FastAPI docs.<pre class="hljs"><code>  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserIn</span><span class="hljs-params">(BaseModel)</span>:</span>
-      name: str
-      age: str
-      sex: str</code></pre><ul class="list">
-<li>We have inherited from <code>BaseModel</code>. This is necessary for us to use it to represent a request body in FastApi.</li>
-</ul>
-</li>
-<li>And now we&#39;ll create a route to handle the update.<pre class="hljs"><code><span class="hljs-meta">  @app.post("/users/")</span>
-  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">create_user</span><span class="hljs-params">(userIn: UserIn)</span>:</span>
-      user = User(userIn.name, userIn.sex, userIn.age)
-      fakeDb[len(fakeDb)] = user
-      <span class="hljs-keyword">return</span> user</code></pre>  (I&#39;ll explain what&#39;s going on in this function in a second. First we&#39;re going to hit it with Postman.)</li>
-<li>Now we have to hit this route with Postman. To do that, we need to set up our call with a request body.<ul class="list">
-<li>First, obviously, select the method as POST (remember it&#39;s in the dropdown to the left of the input where you enter the URL) and the URL <code>127.0.0.1:8000/users/</code>. </li>
-<li>Now we have to fill in the response body, so in Postman, below the URL input, in a tab which says &quot;Body&quot;. Click on it and in the text field which appears write:<pre class="hljs"><code>  {
-      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Pete"</span>,
-      <span class="hljs-attr">"sex"</span>: <span class="hljs-string">"M"</span>,
-      <span class="hljs-attr">"age"</span>: <span class="hljs-number">14</span>
-  }</code></pre>This is the data we are sending to the server.</li>
-<li>Finally, we have to tell the server that our request body is json. That is, there are many formats we could have sent the request body in (XML, key/value, etc) and so we need to tell the server that we&#39;re sending JSON so the server knows how to parse what we&#39;re sending. Thus, under the Body tab, there is a radio button &quot;raw&quot;. Click it and then select &quot;JSON (application/json)&quot; from the dropdown where it has probably defaulted to &quot;Text&quot;. By doint this, we have told Postman to send a header called &quot;content-type&quot; along with our request with the value &quot;application/json&quot;, which the server will read to determine that our body has been formatted as JSON.</li>
-<li>Your Postman screen should look something like this:
-<img src="images/postman-1.png" alt="postman example"></li>
-<li>Now that we&#39;ve set Postman up, we can hit our route. The result we see in Postman should be the new user we&#39;ve created:<pre class="hljs"><code>  {
-      <span class="hljs-attr">"username"</span>: <span class="hljs-string">"Pete"</span>,
-      <span class="hljs-attr">"gender"</span>: <span class="hljs-string">"M"</span>,
-      <span class="hljs-attr">"age"</span>: <span class="hljs-number">14</span>
-  }</code></pre></li>
-</ul>
-</li>
-<li>Let&#39;s go back to the route we wrote again and look at what&#39;s going on.<pre class="hljs"><code><span class="hljs-meta">  @app.post("/users/")</span>
-  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">create_user</span><span class="hljs-params">(userIn: UserIn)</span>:</span>
-      user = User(userIn.name, userIn.sex, userIn.age)
-      fakeDb[len(fakeDb)] = user
-      <span class="hljs-keyword">return</span> user</code></pre><ul class="list">
-<li>The first argument is of type UserIn. By doing this, we have told FastAPI to configure a route which will accept a request body in JSON of the form of the <code>UserIn</code> class. Namely, it should have <code>name</code>, <code>sex</code>, and <code>age</code> fields. And so this is what we sent in the request body. </li>
-<li>Just like we did with the query string data in the previous section, we&#39;re creating a new User object, but this time with the data from the request body.</li>
-<li>Finally, we are adding the user to our fake database (a little more succcintly this time)</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="create-an-update-route-the-good-way"><a class="header-link" href="#create-an-update-route-the-good-way"></a>Create an update route the good way</h3>
-<p>Now, with code very similar to the last section, we&#39;re going to create a route to update our object. The code for this section is in a file called <code>main-4.py</code>. If you want to run it, use <code>pipenv run uvicorn main-4:app --reload</code>. This section will show you how to update an object in a basic way. In the FastAPI documentation they show <a href="https://fastapi.tiangolo.com/tutorial/body-updates/">similar, but slightly more succinct</a> ways to do the same thing. I&#39;m not using their method here, since I think it&#39;s clearer to show it this way and then add in the FastAPI magic one you understand what&#39;s going on in this code.</p>
-<ul class="list">
-<li>First we&#39;re going to create an <code>UpdateUserIn</code> model, similar to the <code>UserIn</code> model we created above:<pre class="hljs"><code>  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UpdateUserIn</span><span class="hljs-params">(BaseModel)</span>:</span>
-      username:str = <span class="hljs-keyword">None</span>
-      gender:str = <span class="hljs-keyword">None</span>
-      age:int = <span class="hljs-keyword">None</span></code></pre>  Note that this class is very similar to the UpdateUser class in the previous section. The difference here is that we&#39;ve given each property a default value of <code>None</code>. What this does is that it tells FastAPI that each of the properties with a default value is optional. The reason this is necessary is that, since we&#39;re updating a user, we may want to update only one property. In other words, the JSON we send in our request might look something like this if we just want to update the user&#39;s age:<pre class="hljs"><code>  {
-      <span class="hljs-attr">"age"</span>: <span class="hljs-number">22</span>
-  }</code></pre>  If we hadn&#39;t given the other two properties <code>username</code> and <code>gender</code> a default value, thereby making them optional, FastAPI would have thrown an error since they weren&#39;t included in the body of our request.</li>
-<li>We now create our route:<pre class="hljs"><code><span class="hljs-meta">  @app.patch("/users/{id}")</span>
-  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update_user</span><span class="hljs-params">(updateUserIn: UpdateUserIn, id: int)</span>:</span>
-      user = fakeDb[id]
-      updateUserInAsDict = updateUserIn.dict()
-      <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> updateUserInAsDict:
-          value = updateUserInAsDict[key]
-          <span class="hljs-keyword">if</span> value <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">None</span>:
-              setattr(user, key, value)
-      <span class="hljs-keyword">return</span> user</code></pre>  A couple things to observe:<ul class="list">
-<li>We&#39;re using <code>PATCH</code> as our HTTP method, since we&#39;re updating an existing user. </li>
-<li>We&#39;re using both <a href="https://fastapi.tiangolo.com/tutorial/path-params/">path parameters</a> and <a href="https://fastapi.tiangolo.com/tutorial/body/">request body</a> in our function signature.</li>
-<li>Let&#39;s parse out what&#39;s going on with:<pre class="hljs"><code>  updateUserInAsDict = updateUserIn.dict()
-  <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> updateUserAsDict:
-      value = updateUserAsDict[key]
-      <span class="hljs-keyword">if</span> value <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">None</span>:
-          setattr(user, key, value)</code></pre><ul class="list">
-<li>In short, we are looping over the key/value pairs in our request body. If the value is not <code>None</code> we set the attribute we sent in the request on the user object we retrieved from the fake database with the value we passed in the request. Now a little more explanation:<ul class="list">
-<li>We need to loop over the items we sent in the request body. For example, if we want to update both the age and gender, our request body would look like:<pre class="hljs"><code>{
-  <span class="hljs-attr">"age"</span>: <span class="hljs-number">33</span>,
-  <span class="hljs-attr">"gender"</span>: <span class="hljs-string">"F"</span>
-}</code></pre>So, we want to loop over this structure. In the first iteration of the loop, we&#39;ll set the age to 33 and in the second iteration of the loop we&#39;ll set gender to F. We can&#39;t loop through the properties of an object, but we can loop through a dictionary. So, we use the <code>dict()</code> method of <a href="https://github.com/samuelcolvin/pydantic/blob/master/pydantic/main.py">Pydantic&#39;s BaseModel</a> since that returns the properties and the values of an object as a dictionary. (Since <code>UpdateUserIn</code> inherits from <code>BaseModel</code>) this method can be called on <code>UpdateUserIn</code>. So, now <code>updateUserInAsDict</code> is a dictionary containing the key/value pairs of <code>UpdateUserIn</code>.</li>
-<li><code>for... in</code> on a dictioary loops over the keys of a dictioary.</li>
-<li>We extract the value at the key with <code>value = updateUserAsDict[key]</code>.</li>
-<li>Keep in mind, the dictionary at this point includes <em>all</em> of the properties of the UpdateUserIn model. So, the ones we <em>didn&#39;t</em> set in the JSON we passed in in the body of our request are still present, but they are set to none. In other words, if the JSON in our request was:<pre class="hljs"><code>{
-  <span class="hljs-attr">"age"</span>: <span class="hljs-number">33</span>,
-}</code></pre>The dictionary of updateUserAsDict will be:<pre class="hljs"><code>{
-  username = <span class="hljs-keyword">None</span>,
-  age = <span class="hljs-number">33</span>,
-  gender = <span class="hljs-keyword">None</span> 
-}</code></pre>So, in order to not set the values on our user object to <code>None</code>, we use an if clause to make sure they are not <code>None</code>.</li>
-<li>Once we make sure they are not <code>None</code>, we set the appropriate property on the user object to the appropriate value.</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="todo"><a class="header-link" href="#todo"></a>TODO</h3>
+    <article class="markdown-body"><h3 id="todo"><a class="header-link" href="#todo"></a>TODO</h3>
 <ul class="list">
 <li>Split out code to modules</li>
 <li>Breakpoint</li>
 <li>Request body &amp; pydantic</li>
 <li>Create a unit test for each route</li>
 <li>Docs for unit tests</li>
-<li><p>Run the unit tests</p>
-<ul class="list">
+<li>Run the unit tests<ul class="list">
 <li>on commandline</li>
 <li>in VSCode </li>
 <li>Start with a simple class</li>
@@ -284,6 +34,7 @@
 </li>
 </ul>
 </li>
+<li>refactor gender to enum</li>
 <li><h4 id="test-routes-with-models"><a class="header-link" href="#test-routes-with-models"></a>Test routes with models</h4>
 <ul class="list">
 <li>Set up dummy data</li>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
+    <title>Setting up the database</title>
+    <link type="text/css" rel="stylesheet" href="assets/css/github-markdown.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/pilcrow.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/hljs-github.min.css"/>
+  </head>
+  <body>
+    <article class="markdown-body"><h2 id="setting-up-the-database"><a class="header-link" href="#setting-up-the-database"></a>Setting up the database</h2>
+<p>We&#39;re now going to set up our database. The code for this section will be in <code>main-6.py</code>. Since we&#39;re using a GUI tool to do this, I&#39;ve created a video walking you through the steps. What I&#39;ll show you in the video is:</p>
+<ul class="list">
+<li>Starting Postgres</li>
+<li>Creating a database user</li>
+<li>Creating a database</li>
+<li>Creating a table</li>
+<li>Creating columns</li>
+<li>Populating the table with initial data</li>
+<li>Connecting to the database from our app</li>
+</ul>
+<video controls style="width: 100%">
+  <source src="../images/database.mp4" type="video/mp4">
+</video> 
+
+<p>Much of the time while doing development, you won&#39;t modify your database structure this way. Rather, you&#39;ll create migration files in which the database structure is modified (tables added, columns added, etc) via a script. The benefit of this is that other people who are working on your app just have to run the scripts to set the database up or make modifications to it. For example, let&#39;s say you add a new property to your <code>User</code> object called <code>email</code>. In this case, we&#39;d want a new column in our <code>users</code> table to store the <code>email</code>. We would create a migration script (or more likely have a tool like <a href="https://www.pythoncentral.io/migrate-sqlalchemy-databases-alembic/">Alembic</a> create it.) This would get added to source control. Then when a user pulled down your changes, they would run the migration script which would add the column in their local version of the database. </p>
+    </article>
+  </body>
+</html>
